@@ -1,0 +1,8 @@
+apiVersion: config.myorg.io/v1alpha1
+kind: AppConfig
+metadata:
+  name: myappconfig
+  annotations:
+    config.kubernetes.io/local-config: "true"
+foo: bar
+baz: qux
