@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -o nounset -o errexit -o errtrace -o pipefail
+
+# the resource list is passed by kustomize the the filter
+resourceList=$(cat) # read the `kind: ResourceList` from stdin
+
+# the list contains a function config with some custom data
+targetName=$(echo "$resourceList" | yq e '.functionConfig.data.target' -)
+configMapName=$(echo "$resourceList" | yq e '.functionConfig.data.configMap' -)
+
+# get the app config from the resourceList.items list
+appConfig="$(echo "$resourceList" | yq ".items[] | select(.metadata.name == \"$targetName\")")"
+
+# render a configmap using the appconfigs content
+# perhaps this could be done with yq but I dont know yq well
+configMap="$(echo "$appConfig" | tpl -d yaml '
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: '"$configMapName"'
+data:
+  {{ .filename }}: | {{ .content | toYaml | nindent 4 }}
+')"
+
+# since yq is nitpicky, we convert the configmap to json
+configMapJson=$(echo "$configMap" | tpl -d yaml '{{ toJson . }}')
+
+# add the item to the list and delete any resource of kind AppConfig,
+# then write the result to stdout so that kustomize can pick it up
+echo "$resourceList" |
+  yq ".items += $configMapJson" |
+  yq 'del(.items[] | select(.kind == "AppConfig"))'

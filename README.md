@@ -1,6 +1,6 @@
-# Kustomize Config File Patch
+# KRM Filter Example
 
 ```bash
-kustomize build --load-restrictor=LoadRestrictionsNone base/        # have a look at the base
-kustomize build --load-restrictor=LoadRestrictionsNone env/test/    # overwrite the app config
+docker build -t app-config-generator .
+kustomize build --enable-alpha-plugins overlay/
 ```

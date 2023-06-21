@@ -1,0 +1,8 @@
+apiVersion: myorg.com/v1
+kind: AppConfig
+metadata:
+  name: my-app-config
+filename: config.yaml
+content:
+  foo: bar
+  baz: qux

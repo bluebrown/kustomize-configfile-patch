@@ -1,0 +1,19 @@
+apiVersion: builtin
+kind: PatchStrategicMergeTransformer
+metadata:
+  name: merge-app-config
+paths:
+  - ./app-config.yaml
+---
+apiVersion: bluebrown.github.io/v1alpha1
+kind: AppConfigGenerator
+metadata:
+  name: generate-config-map
+  annotations:
+    config.kubernetes.io/local-config: "true"
+    config.kubernetes.io/function: |
+      container:
+        image: app-config-generator
+data:
+  target: my-app-config
+  configMap: config-file
