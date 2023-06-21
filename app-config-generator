@@ -25,8 +25,8 @@ data:
 # since yq is nitpicky, we convert the configmap to json
 configMapJson=$(echo "$configMap" | tpl -d yaml '{{ toJson . }}')
 
-# add the item to the list and delete any resource of kind AppConfig,
+# add the item to the list and delete the target config,
 # then write the result to stdout so that kustomize can pick it up
 echo "$resourceList" |
   yq ".items += $configMapJson" |
-  yq 'del(.items[] | select(.kind == "AppConfig"))'
+  yq 'del(.items[] | select(.metadata.name == "'"$targetName"'"))'
